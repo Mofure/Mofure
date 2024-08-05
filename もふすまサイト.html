@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>MofuSmashFiard</title>
+    <style id="theme-style">
+        body {
+            font-family: Arial, sans-serif;
+            color: #000;
+            background-color: #fff;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            margin-top: 0;
+        }
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5列 */
+            gap: 10px;
+            justify-items: center;
+            max-width: 1200px;
+        }
+        .button-container.one-column {
+            grid-template-columns: 1fr; /* 縦に積むスタイル */
+            grid-template-rows: repeat(auto-fill, minmax(50px, auto)); /* ボタンの高さに合わせて調整 */
+        }
+        .button-container.two-rows {
+            grid-template-rows: repeat(2, auto); /* 2行にする */
+        }
+        a {
+            font-size: 1.2em;
+            color: #000;
+            text-decoration: none;
+        }
+        a:hover {
+            color: red;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        a:visited {
+            color: #FF0000; /* 訪問済みリンクの色 */
+        }
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 1em;
+            color: #000;
+            background-color: #ddd;
+            transition: background-color 0.3s, color 0.3s;
+            width: 100%; /* ボタンをコンテナの幅に合わせます */
+        }
+        button img {
+            vertical-align: middle;
+            width: 100%;
+            height: auto;
+        }
+        .reload-button {
+            background-color: #FF0000;
+            color: #fff;
+        }
+        .reload-button:hover {
+            background-color: #cc0000;
+        }
+        .dark-mode {
+            color: #fff;
+            background-color: #333;
+        }
+        .dark-mode a {
+            color: #00BFFF; /* 明るい空色 */
+        }
+        .dark-mode a:hover {
+            color: #FF0000; /* ダークモード時のリンクホバー時の色 */
+        }
+        .dark-mode a:visited {
+            color: #FF0000; /* ダークモード時の訪問済みリンクの色 */
+        }
+        .dark-mode button {
+            background-color: #000;
+            color: #fff;
+        }
+        .dark-mode button:hover {
+            background-color: #444;
+        }
+        /* YouTube埋め込みのスタイル */
+        .youtube-container {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 1200px;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+        }
+        .youtube-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .youtube-chat {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 1200px;
+            height: 400px; /* コメントセクションの高さ */
+            border: 1px solid #ccc;
+            overflow-y: auto;
+        }
+        .youtube-chat iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>もふスマ ステージ管理ツール</h1>
+
+    <div class="button-container" id="button-container">
+        <button id="final">終点 <img src="./Images/Final.jpg" alt="終点" title="終点" /></button>
+        <button id="BF">戦場 <img src="./Images/BF.jpg" alt="戦場" title="戦場" /></button>
+        <button id="sbf">小戦場 <img src="./Images/sbf.jpg" alt="小戦場" title="小戦場" /></button>
+        <button id="poke2">ポケ2 <img src="./Images/poke2.jpg" alt="ポケモンスタジアム2" title="ポケモンスタジアム2" /></button>
+        <button id="town">村と街 <img src="./Images/town.jpg" alt="村と街" title="村と街" /></button>
+        <button id="HB">ホロバス <img src="./Images/HB.jpg" alt="ホロウバスティオン" title="ホロウバスティオン" /></button>
+        <button id="mura">すま村 <img src="./Images/mura.jpg" alt="すま村" title="すま村" /></button>
+        <button id="add-button">+</button>
+    </div>
+
+    <br>
+    <a href="https://www.youtube.com/@mofure" target="_blank">YouTube(配信先)</a>
+    <br>
+    <a href="https://www.youtube.com/@SSBU_MofuSmashCut" target="_blank">YouTubeサブ垢(試合の切り抜き)</a>
+    <br>
+    <h3>リセットは再読み込みしてね！</h3>
+    <h4><font color="red">間違えて再読み込みしないように！注意！</font></h4>
+    <br><br><br>
+    <button class="reload-button" onclick="location.reload();">再読み込みボタン(注意！)</button>
+    <br>
+    <button id="dark-mode-toggle" class="reload-button">ダークモードに切替</button>
+
+    <div class="youtube-container">
+        <iframe id="youtube-video" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div class="youtube-chat">
+        <iframe id="youtube-chat" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        // APIキーとチャンネルID
+        const API_KEY = 'AIzaSyA2S6WeyrH_epOxFJnYvH4aET54qvQSeUQ';
+        const CHANNEL_ID = 'UCkHRXN_kV4s_lYqjI-zJOtg';
+
+        // ページが読み込まれたときにダークモードを適用
+        document.body.classList.add('dark-mode');
+
+        // ダークモード切替機能
+        const toggleButton = document.getElementById('dark-mode-toggle');
+        toggleButton.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                toggleButton.textContent = 'ライトモードに切替';
+            } else {
+                toggleButton.textContent = 'ダークモードに切替';
+            }
+        });
+
+        // ボタンをクリックするとそのボタンを削除し、+ボタンも削除する処理
+        function handleButtonClick(button) {
+            button.remove();
+            const addButton = document.getElementById('add-button');
+            if (addButton) {
+                addButton.remove();
+            }
+            adjustButtonLayout();
+        }
+
+        document.querySelectorAll('button').forEach(button => {
+            if (!button.classList.contains('reload-button') && !button.id.includes('dark-mode-toggle') && !button.id.includes('add-button')) {
+                button.addEventListener('click', () => handleButtonClick(button));
+            }
+        });
+
+        // 追加ボタンがクリックされたときに新しいボタンを追加する処理
+        const addButton = document.getElementById('add-button');
+        if (addButton) {
+            addButton.addEventListener('click', () => {
+                const buttonContainer = document.getElementById('button-container');
+                const newButtonType = prompt("追加するボタンを選んでください:\nA: 北の大空洞\nB: エレクトロプランクトン\nC: カロスポケモンリーグ\nD: ライラットクルーズ\nE: ヨッシーストーリー\nF: オルディン大橋\nG: 洞窟大冒険\nH: 攻城戦\nI: KOFスタジアム\nJ: 三島道場").toUpperCase();
+
+                let newButton;
+                switch (newButtonType) {
+                    case 'A':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = '北の大空洞 <img src="./Images/north_cave.jpg" alt="北の大空洞" title="北の大空洞" />';
+                        newButton.id = 'north-cave';
+                        break;
+                    case 'B':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = 'エレクトロプランクトン <img src="./Images/electroplankton.jpg" alt="エレクトロプランクトン" title="エレクトロプランクトン" />';
+                        newButton.id = 'electroplankton';
+                        break;
+                    case 'C':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = 'カロスポケモンリーグ <img src="./Images/calos_pokemon_league.jpg" alt="カロスポケモンリーグ" title="カロスポケモンリーグ" />';
+                        newButton.id = 'calos-pokemon-league';
+                        break;
+                    case 'D':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = 'ライラットクルーズ <img src="./Images/lilat_cruise.jpg" alt="ライラットクルーズ" title="ライラットクルーズ" />';
+                        newButton.id = 'lilat-cruise';
+                        break;
+                    case 'E':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = 'ヨッシーストーリー <img src="./Images/yoshi_story.jpg" alt="ヨッシーストーリー" title="ヨッシーストーリー" />';
+                        newButton.id = 'yoshi-story';
+                        break;
+                    case 'F':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = 'オルディン大橋 <img src="./Images/ordyn_bridge.jpg" alt="オルディン大橋" title="オルディン大橋" />';
+                        newButton.id = 'ordyn-bridge';
+                        break;
+                    case 'G':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = '洞窟大冒険 <img src="./Images/cave_adventure.jpg" alt="洞窟大冒険" title="洞窟大冒険" />';
+                        newButton.id = 'cave-adventure';
+                        break;
+                    case 'H':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = '攻城戦 <img src="./Images/castle_siege.jpg" alt="攻城戦" title="攻城戦" />';
+                        newButton.id = 'castle-siege';
+                        break;
+                    case 'I':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = 'KOFスタジアム <img src="./Images/kof_stadium.jpg" alt="KOFスタジアム" title="KOFスタジアム" />';
+                        newButton.id = 'kof-stadium';
+                        break;
+                    case 'J':
+                        newButton = document.createElement('button');
+                        newButton.innerHTML = '三島道場 <img src="./Images/mishima_dojo.jpg" alt="三島道場" title="三島道場" />';
+                        newButton.id = 'mishima-dojo';
+                        break;
+                    default:
+                        alert('無効な選択肢です。');
+                        return;
+                }
+                // +ボタンの前に追加
+                buttonContainer.insertBefore(newButton, addButton);
+
+                // ボタンをクリックするとそのボタンを削除し、+ボタンも削除する処理
+                newButton.addEventListener('click', () => handleButtonClick(newButton));
+
+                // レイアウトを再調整
+                adjustButtonLayout();
+
+                // 追加ボタンが3つ追加された時点で+ボタンを消滅させる処理
+                const buttons = buttonContainer.querySelectorAll('button');
+                const addButtonCount = Array.from(buttons).filter(btn => btn.id.includes('add-button')).length;
+                if (buttons.length - addButtonCount >= 2) {
+                    addButton.remove();
+                }
+            });
+        }
+
+        // レイアウトを調整する関数
+        function adjustButtonLayout() {
+            const buttonContainer = document.getElementById('button-container');
+            const buttons = buttonContainer.querySelectorAll('button');
+            const totalButtons = buttons.length;
+            if (totalButtons <= 5) {
+                buttonContainer.classList.remove('two-rows', 'one-column');
+                buttonContainer.classList.add('button-container');
+            } else if (totalButtons <= 10) {
+                buttonContainer.classList.remove('one-column');
+                buttonContainer.classList.add('two-rows');
+            } else {
+                buttonContainer.classList.remove('two-rows');
+                buttonContainer.classList.add('one-column');
+            }
+        }
+
+        // YouTube動画とチャットのURLを設定する
+        function setYouTubeEmbed() {
+            const videoUrl = 'https://www.youtube.com/embed/live_stream?channel=' + CHANNEL_ID;
+            const chatUrl = 'https://www.youtube.com/live_chat?v=' + videoUrl.split('/').pop();
+            document.getElementById('youtube-video').src = videoUrl;
+            document.getElementById('youtube-chat').src = chatUrl;
+        }
+        setYouTubeEmbed();
+    </script>
+</body>
+</html>
